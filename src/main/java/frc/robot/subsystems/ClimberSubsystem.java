@@ -11,17 +11,17 @@ import frc.robot.constants.SubsystemConstants.ClimberConstants;
 import frc.robot.constants.SubsystemConstants.GroundIntakeConstants;
 
 public class ClimberSubsystem extends SubsystemBase{
-  private final SparkMax m_ClimberMotor = 
-  new SparkMax(CanIds.kClimberMotorCanId, SparkMax.MotorType.kBrushless);
-  RelativeEncoder m_climberEncoder;
+  // private final SparkMax m_ClimberMotor = 
+  // new SparkMax(CanIds.kClimberMotorCanId, SparkMax.MotorType.kBrushless);
+  // RelativeEncoder m_climberEncoder;
 
   CurrentDrawTab m_CurrentDrawTab = CurrentDrawTab.getInstance();
 
   /** Creates a new ClimberSubsystem. */
   public ClimberSubsystem() {
-    m_ClimberMotor.setInverted(false);
-    m_climberEncoder = m_ClimberMotor.getEncoder();
-    m_climberEncoder.setPosition(0);
+    // m_ClimberMotor.setInverted(false);
+    // m_climberEncoder = m_ClimberMotor.getEncoder();
+    // m_climberEncoder.setPosition(0);
 
     // m_ClimberMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
     // m_ClimberMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
@@ -34,12 +34,12 @@ public class ClimberSubsystem extends SubsystemBase{
     // m_ClimberMotor.burnFlash();
   }
   public void setClimberMotorSpeed(double speed) {
-    m_ClimberMotor.set(speed);
+    // m_ClimberMotor.set(speed);
   }
   @Override
   public void periodic() {
     // System.out.println("Climber Encoder: " + m_climberEncoder.getPosition());
-    m_CurrentDrawTab.setClimberCurrentDraw(m_ClimberMotor.getOutputCurrent());
+    // m_CurrentDrawTab.setClimberCurrentDraw(m_ClimberMotor.getOutputCurrent());
   }
   public void toggleSoftLimit(){
     // if(m_ClimberMotor.isSoftLimitEnabled(SoftLimitDirection.kForward)){

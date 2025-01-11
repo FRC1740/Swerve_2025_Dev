@@ -47,6 +47,11 @@ public class DriveTrainTab {
   GenericEntry m_nte_AutoRotationOffset;
   GenericEntry m_nte_IsPathFlipped;
 
+  GenericEntry m_nte_FR_MOD;
+  GenericEntry m_nte_FL_MOD;
+  GenericEntry m_nte_BR_MOD;
+  GenericEntry m_nte_BL_MOD;
+
   private static DriveTrainTab instance = null;
 
   private DriveTrainTab() {
@@ -88,8 +93,17 @@ public class DriveTrainTab {
     m_sbt_DriveTrain.add(m_Field)
       .withSize(4, 2).withPosition(0, 0);
 
-    m_nte_CurrentSpeed = m_sbt_DriveTrain.addPersistent("Speed MPS", 0.0)
-    .withSize(2,1).withPosition(1, 5).getEntry();
+      m_nte_CurrentSpeed = m_sbt_DriveTrain.addPersistent("Speed MPS", 0.0)
+      .withSize(2,1).withPosition(1, 5).getEntry();
+
+      m_nte_FR_MOD = m_sbt_DriveTrain.addPersistent("FR", 0.0)
+      .withSize(2,1).withPosition(1, 5).getEntry();
+      m_nte_FL_MOD = m_sbt_DriveTrain.addPersistent("FL", 0.0)
+      .withSize(2,1).withPosition(1, 5).getEntry();
+      m_nte_BR_MOD = m_sbt_DriveTrain.addPersistent("BR", 0.0)
+      .withSize(2,1).withPosition(1, 5).getEntry();
+      m_nte_BL_MOD = m_sbt_DriveTrain.addPersistent("BL", 0.0)
+      .withSize(2,1).withPosition(1, 5).getEntry();
 
   }
 
@@ -100,6 +114,13 @@ public class DriveTrainTab {
 
   public void setIMU_ZAngle(Double value) {
     m_nte_IMU_ZAngle.setDouble(truncate(value, 2));
+  }
+
+  public void setModules(Double FR, Double FL, Double BR, Double BL) {
+    m_nte_FR_MOD.setDouble(truncate(FR, 2));
+    m_nte_FL_MOD.setDouble(truncate(FL, 2));
+    m_nte_BR_MOD.setDouble(truncate(BR, 2));
+    m_nte_BL_MOD.setDouble(truncate(BL, 2));
   }
 
   public Double getIMU_PitchAngle() {

@@ -166,6 +166,11 @@ public class DriveSubsystem extends SubsystemBase {
     m_CurrentDrawTab.setTurningRearLeftCurrentDraw(m_rearLeft.getTurningVoltage());
     m_CurrentDrawTab.setTurningRearRightCurrentDraw(m_rearRight.getTurningVoltage());
 
+    m_DriveTrainTab.setModules(m_frontRight.getPosition().angle.getDegrees(), 
+      m_frontLeft.getPosition().angle.getDegrees(), 
+      m_rearRight.getPosition().angle.getDegrees(), 
+      m_rearLeft.getPosition().angle.getDegrees());
+
     m_DriveTrainTab.setSpeed(m_frontLeft.getSpeed());
 
     // Update the odometry in the periodic block

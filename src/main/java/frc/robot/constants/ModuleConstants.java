@@ -14,7 +14,7 @@ public final class ModuleConstants {
 
   // Invert the turning encoder, since the output shaft rotates in the opposite direction of
   // the steering motor in the MAXSwerve Module.
-  public static final boolean kTurningEncoderInverted = true;
+  public static final boolean kTurningEncoderInverted = false;
 
   // Calculations required for driving motor conversion factors and feed forward
   public static final double kDrivingMotorFreeSpeedRps = NeoMotorConstants.kFreeSpeedRpm / 60;

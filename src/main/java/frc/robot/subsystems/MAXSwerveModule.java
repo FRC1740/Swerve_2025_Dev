@@ -21,6 +21,7 @@ import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.RelativeEncoder;
@@ -60,7 +61,7 @@ public class MAXSwerveModule {
 
     // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
     m_drivingEncoder = m_drivingSparkMax.getEncoder();
-    m_turningEncoder = m_turningSparkMax.getAbsoluteEncoder();
+    // m_turningEncoder = m_turningSparkMax.getAbsoluteEncoder();
     m_drivingPIDController = m_drivingSparkMax.getClosedLoopController();
     m_turningPIDController = m_turningSparkMax.getClosedLoopController();
     // m_drivingPIDController.setFeedbackDevice(m_drivingEncoder);
@@ -138,14 +139,15 @@ public class MAXSwerveModule {
     m_drivingSparkMaxConfig.idleMode(ModuleConstants.kDrivingMotorIdleMode);
     m_turningSparkMaxConfig.idleMode(ModuleConstants.kTurningMotorIdleMode);
     m_drivingSparkMaxConfig.smartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
-    m_turningSparkMaxConfig.smartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
+    m_turningSparkMaxConfig.smartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit);
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.
     // m_drivingSparkMax.burnFlash();
     // m_turningSparkMax.burnFlash();
-    m_drivingSparkMax.configure(m_drivingSparkMaxConfig, null, null);
-    m_turningSparkMax.configure(m_turningSparkMaxConfig, null, null);
+    m_drivingSparkMax.configure(m_drivingSparkMaxConfig, null, PersistMode.kPersistParameters);
+    m_turningSparkMax.configure(m_turningSparkMaxConfig, null, PersistMode.kPersistParameters);
+    m_turningEncoder = m_turningSparkMax.getAbsoluteEncoder();
 
     m_chassisAngularOffset = chassisAngularOffset;
     m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition());

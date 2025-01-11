@@ -19,22 +19,7 @@ import frc.robot.commands.VisionAlign;
 import frc.robot.commands.AlignAndDrive.AlignToJoystickAndDrive;
 import frc.robot.commands.AlignAndDrive.AlignToNearestAngleAndDrive;
 import frc.robot.commands.AlignAndDrive.DriveWhileAligning;
-import frc.robot.commands.basic.GroundEject;
-import frc.robot.commands.basic.GroundIntake;
-import frc.robot.commands.basic.GroundIntakeDefault;
-import frc.robot.commands.basic.GroundIntakeNoHorn;
-import frc.robot.commands.basic.Horn.HornAmpShoot;
-import frc.robot.commands.basic.Horn.HornAmpShootWithDeflector;
-import frc.robot.commands.basic.Horn.HornIntake;
-import frc.robot.commands.basic.Horn.HornShoot;
-import frc.robot.commands.basic.Horn.HornShootShuffleboard;
-import frc.robot.commands.basic.Horn.ShootAndIntake;
-import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.ConveyorSubsystem;
-import frc.robot.subsystems.DeflectorSubsytem;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.GroundIntakeSubsystem;
-import frc.robot.subsystems.HornSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -59,11 +44,6 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 public class RobotContainer {
   // The robot's subsystems
   private DriveSubsystem m_robotDrive;
-  private HornSubsystem m_hornSubsystem;
-  private ConveyorSubsystem m_conveyorSubsystem;
-  private ClimberSubsystem m_climberSubsystem;
-  private DeflectorSubsytem m_deflectorSubsystem;
-  private GroundIntakeSubsystem m_groundIntakeSubsystem;
   private LimelightSubsystem m_limelight;
   
   private RobotShared m_robotShared = RobotShared.getInstance();
@@ -83,54 +63,6 @@ public class RobotContainer {
   public RobotContainer() {
     initSubsystems();
     initInputDevices();
-
-    //Must register commands used in PathPlanner autos
-    NamedCommands.registerCommand("GroundIntake", new GroundIntakeNoHorn(1).withTimeout(2));
-    NamedCommands.registerCommand("GroundIntakeMedium", new GroundIntakeNoHorn(1).withTimeout(5));
-    NamedCommands.registerCommand("GroundIntakeLong", new GroundIntakeNoHorn(1).withTimeout(10));
-    NamedCommands.registerCommand("ShootSpeaker", new HornShoot(HornConstants.kHornSpeakerShotMotorRPM).withTimeout(.5));
-    NamedCommands.registerCommand("ShootAmp", new HornAmpShoot().withTimeout(1)); // We don't use the amp so deflector not needed
-    NamedCommands.registerCommand("ShootAmpWithDeflector", new HornAmpShootWithDeflector().withTimeout(3)); // We use the amp so deflector needed
-    NamedCommands.registerCommand("SpinupShooter", new InstantCommand(() -> m_hornSubsystem.setRpmSetpoint(7000.0)));
-    NamedCommands.registerCommand("ResetGyro", new InstantCommand(() -> m_robotDrive.zeroHeading()));
-    NamedCommands.registerCommand("ShootAndIntake", new ShootAndIntake(.6).withTimeout(15)); // .6 is so it doesn't enter our zone
-
-    //Creates sendable chooser for use with PathPlanner autos
-    // autoChooser = AutoBuilder.buildAutoChooser();
-
-    SendableChooser<Command> isPathFlippedSendableChooser = new SendableChooser<>();
-    isPathFlippedSendableChooser.setDefaultOption("Not Flipped", new InstantCommand(() -> DriveTrainTab.getInstance().setIsPathFlipped(0)));
-    isPathFlippedSendableChooser.addOption("Flipped", new RunCommand(() -> DriveTrainTab.getInstance().setIsPathFlipped(1)));
-    
-    // Posts the trajectory to the shuffleboard
-    // autoChooser.onChange((command) -> {
-    //   DriverTab.getInstance().setTrajectory(PathPlannerAuto.getPathGroupFromAutoFile(command.getName()));
-
-    //   SmartDashboard.putString("Selected Auto", command.getName());
-
-    //   if(isPathFlippedSendableChooser.getSelected().getName().contentEquals("RunCommand")) { // SO SO SO JANKY
-    //     DriverTab.getInstance().flipTrajectory(true);
-    //     DriveTrainTab.getInstance().setIsPathFlipped(1);
-    //   }else{
-    //     DriverTab.getInstance().flipTrajectory(false);
-    //     DriveTrainTab.getInstance().setIsPathFlipped(0);
-    //   }
-    // });
-
-    isPathFlippedSendableChooser.onChange((command) -> {
-      System.out.println("Is Path Flipped: " + isPathFlippedSendableChooser.getSelected().getName());
-      // For some reason .getName is returning the name of the command type and not the actual name
-      if(isPathFlippedSendableChooser.getSelected().getName().contentEquals("RunCommand")) { // SO SO SO JANKY
-        DriverTab.getInstance().flipTrajectory(true);
-        DriveTrainTab.getInstance().setIsPathFlipped(1);
-      }else{
-        DriverTab.getInstance().flipTrajectory(false);
-        DriveTrainTab.getInstance().setIsPathFlipped(0);
-      }
-    });
-    
-    SmartDashboard.putData("Is Path Flipped", isPathFlippedSendableChooser);
-    // SmartDashboard.putData("Auto Mode", autoChooser);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -158,31 +90,14 @@ public class RobotContainer {
             true, true, OIConstants.kUseQuadraticInput),
           m_robotDrive));
     }
-
-    // m_deflectorSubsystem.setDefaultCommand(
-    //   new RunCommand(() -> m_deflectorSubsystem.seekSetpoint(),
-    //   m_deflectorSubsystem));
-
-    // buttonBoardSwitches[1][1] // bottom right
-    m_conveyorSubsystem.setDefaultCommand(new GroundIntakeDefault(1));
   }
 
   private void initSubsystems() {
     m_robotShared = RobotShared.getInstance();
 
     m_robotDrive = m_robotShared.getDriveSubsystem();
-    m_robotShared.getSensorSubsystem(); // no setting because not used
     m_limelight = m_robotShared.getLimelight();
-    m_hornSubsystem = m_robotShared.getHornSubsystem();
-    m_conveyorSubsystem = m_robotShared.getConveyorSubsystem();
-    m_groundIntakeSubsystem = m_robotShared.getGroundIntakeSubsystem();
-    m_climberSubsystem = m_robotShared.getClimberSubsystem();
     // m_robotShared.getPhotonVision();
-    m_robotShared.getLedSubsystem();
-    
-    m_deflectorSubsystem = m_robotShared.getDeflectorSubsystem();
-
-    m_robotShared.getInspiration();
 
     DriverTab.getInstance();
   }
@@ -204,26 +119,9 @@ public class RobotContainer {
     m_driverController.start()
       .onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
-    //Robot relative mode
-    m_driverController.leftBumper()
-      .whileTrue(
-        new HornIntake(-0.4)
-      );
     m_driverController.y()
       .whileTrue(
         new VisionAlign(m_robotDrive, m_robotShared.getLimelight())
-      );
-    //Half Speed mode
-    m_driverController.rightBumper()
-      .whileTrue( 
-        new SequentialCommandGroup(
-          new GroundIntake(1),
-          new HornIntake(-0.2))
-      );
-
-    m_driverController.rightTrigger()
-      .whileTrue( 
-        new HornShootShuffleboard()
       );
     m_driverController.leftTrigger()
       .whileTrue(new RunCommand(
@@ -233,45 +131,6 @@ public class RobotContainer {
           -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband) / 2,
           true, true, OIConstants.kUseQuadraticInput),
         m_robotDrive));
-      // .whileTrue(
-      //   new HornAmpShootWithDeflector()
-      // );
-    // // Testing path following
-    // m_driverController.b()
-    //   .whileTrue(new SequentialCommandGroup(
-    //     new InstantCommand(() -> m_robotDrive.resetOdometry(m_ExamplePath.getPreviewStartingHolonomicPose())),
-    //     autoChooser.getSelected()
-    //   ));
-    // m_driverController.b()
-    //   .whileTrue(new RunCommand(
-    //     () -> m_robotShared.getHornSubsystem().Shoot(.5),
-    //     m_robotDrive));
-    // m_driverController.a()
-    //   .whileTrue(
-    //     new RunCommand(() -> m_deflectorSubsystem.setDeflectorSpeed(-.3),
-    //      m_deflectorSubsystem)
-    //   )
-    //   .onFalse(new InstantCommand(() -> m_deflectorSubsystem.setDeflectorSpeed(0)));
-
-    // m_driverController.y()
-    //   .whileTrue(
-    //     new RunCommand(() -> m_deflectorSubsystem.setDeflectorSpeed(.3),
-    //      m_deflectorSubsystem)
-    //   )
-    //   .onFalse(new InstantCommand(() -> m_deflectorSubsystem.setDeflectorSpeed(0)));
-  
-    //Testing path following
-    // m_driverController.b()
-    //   .whileTrue(new SequentialCommandGroup(
-    //     new InstantCommand(() -> m_robotDrive.resetOdometry(m_ExamplePath.getPreviewStartingHolonomicPose())),
-    //     AutoBuilder.followPath(m_ExamplePath)
-    //   ));
-      
-      // TESTED
-    m_driverController.back()
-      .whileTrue(
-        new GroundEject(-.3)
-      );
 
     // This is a stick click
     m_driverController.rightStick()
@@ -343,121 +202,12 @@ public class RobotContainer {
       new InstantCommand(() -> m_limelight.toggleLED(false))
     );
     
-    buttonBoardButtons[0][0]
-      .whileTrue( 
-        new ParallelCommandGroup(
-          new RunCommand(() -> m_hornSubsystem.setHornSpeed(1)),
-          new RunCommand(() -> m_conveyorSubsystem.setConveyorSpeed(1))
-        )
-      )
-      .onFalse( 
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_hornSubsystem.setHornSpeed(0)),
-          new InstantCommand(() -> m_conveyorSubsystem.setConveyorSpeed(0))
-        )
-      );
-    buttonBoardButtons[0][1]
-      .whileTrue( 
-        new ParallelCommandGroup(
-          new RunCommand(() -> m_hornSubsystem.setHornSpeed(-.3)),
-          new RunCommand(() -> m_conveyorSubsystem.setConveyorSpeed(-.3))
-        )
-      )
-      .onFalse(
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_hornSubsystem.setHornSpeed(0)),
-          new InstantCommand(() -> m_conveyorSubsystem.setConveyorSpeed(0))
-        )
-      );
-    buttonBoardButtons[0][2]
-      .whileTrue( 
-        new ParallelCommandGroup(
-          new RunCommand(() -> m_hornSubsystem.setHornSpeed(-.3)),
-          new RunCommand(() -> m_conveyorSubsystem.setConveyorSpeed(.3)),
-          new RunCommand(() -> m_groundIntakeSubsystem.setGroundIntakeSpeed(.3))
-        )
-      )
-      .onFalse(
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_hornSubsystem.setHornSpeed(0)),
-          new InstantCommand(() -> m_conveyorSubsystem.setConveyorSpeed(0)),
-          new InstantCommand(() -> m_groundIntakeSubsystem.setGroundIntakeSpeed(0))
-        )
-      );
-
-    // buttonBoardButtons[1][0]
-    //   .onTrue(
-    //     new InstantCommand(() -> m_robotDrive.setAutoRotationOffset(Optional.of(null)))
-    //   );
-    buttonBoardButtons[1][0]
-      .whileTrue(
-        new RunCommand(() -> m_climberSubsystem.setClimberMotorSpeed(1))
-      )
-      .onFalse(
-        new InstantCommand(() -> m_climberSubsystem.setClimberMotorSpeed(0))
-      );
-    buttonBoardButtons[1][1]
-      .whileTrue(
-        new RunCommand(() -> m_climberSubsystem.setClimberMotorSpeed(-1))
-      )
-      .onFalse(
-        new InstantCommand(() -> m_climberSubsystem.setClimberMotorSpeed(0))
-      );
-    buttonBoardButtons[1][2]
-      .whileTrue(
-        new GroundEject(-.3)
-      );
-    buttonBoardButtons[2][0]
-      .whileTrue(
-        new RunCommand(() -> m_climberSubsystem.setClimberMotorSpeed(.15))
-      )
-      .onFalse(
-        new InstantCommand(() -> m_climberSubsystem.setClimberMotorSpeed(0))
-      );
-    buttonBoardButtons[2][1]
-      .whileTrue(
-        new RunCommand(() -> m_climberSubsystem.setClimberMotorSpeed(-.6))
-      )
-      .onFalse(
-        new InstantCommand(() -> m_climberSubsystem.setClimberMotorSpeed(0))
-      );
-    buttonBoardButtons[2][2]
-      .onTrue(
-        new InstantCommand(() -> m_climberSubsystem.toggleSoftLimit())
-      );
   }
 
   void flightStickControls(){
     m_driverController.x()
       .onTrue(
         new InstantCommand(() -> m_robotDrive.zeroHeading())
-      );
-
-
-    m_driverController.button(22)
-      .whileTrue(
-        new HornAmpShootWithDeflector()
-      );
-    m_driverController.button(5)
-      .whileTrue(
-      new SequentialCommandGroup(
-        new GroundIntake(1),
-        new HornIntake(-0.2))
-      );
-
-    m_driverController.a()
-      .whileTrue( 
-        new HornShoot(HornConstants.kHornSpeakerShotMotorRPM)
-      );
-    m_driverController.button(10)
-      .whileTrue(
-        new GroundEject(-.3)
-      );
-    m_driverController.rightBumper()
-      .whileTrue( 
-        new SequentialCommandGroup(
-          new GroundIntake(1),
-          new HornIntake(-0.2))
       );
   }
   /**

@@ -3,9 +3,9 @@ package frc.robot.constants;
 import edu.wpi.first.math.geometry.Transform3d;
 
 public final class VisionConstants {
-  public static final double AprilTagMinimumArea = .45f;
-
+  public static final String camName = "";
   public static final Transform3d RobotToCam = new Transform3d();
+  public static final Double AprilTagMinimumArea = 0.0;
 
   public enum AprilTagIDs{
     RedSpeakerCenter(4), //Center tag on red speaker

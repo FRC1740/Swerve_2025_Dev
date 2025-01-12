@@ -97,7 +97,7 @@ public class RobotContainer {
 
     m_robotDrive = m_robotShared.getDriveSubsystem();
     m_limelight = m_robotShared.getLimelight();
-    // m_robotShared.getPhotonVision();
+    m_robotShared.getPhotonVision();
 
     DriverTab.getInstance();
   }

@@ -47,7 +47,6 @@ public class Robot extends TimedRobot {
     }
 
     m_robotShared.getDriveSubsystem().setAutoRotationOffset(0.0, false);
-    // m_robotShared.getInspiration().clearPrintQueue();
   }
 
   @Override

@@ -6,6 +6,8 @@ package frc.robot.commands.AlignAndDrive;
 
 import java.io.Console;
 
+import org.photonvision.targeting.PhotonTrackedTarget;
+
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.DriveCommandConstants;
@@ -47,21 +49,23 @@ public class AlignToTagPhotonvision extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (m_photonvision.getBestTarget() != null) {
-    angleToTag = m_photonvision.getBestTarget().bestCameraToTarget.getX();
-    System.out.println("angle: " + angleToTag);
-    distanceToTag = m_photonvision.getBestTarget().bestCameraToTarget; // getTranslationToAprilTag may be incorrect
+    PhotonTrackedTarget target = m_photonvision.getBestTarget();
+    if (target != null) {
+    angleToTag = target.bestCameraToTarget.getRotation().getAngle();
+    distanceToTag = target.bestCameraToTarget; // getTranslationToAprilTag may be incorrect
 
-    x_error = DriveCommandConstants.xGoal - distanceToTag.getX();
-    y_error = DriveCommandConstants.yGoal - distanceToTag.getY();
-    theta_error = angleToTag;
+    x_error = -(DriveCommandConstants.xGoal - distanceToTag.getX()); // forward back
+    y_error = -(DriveCommandConstants.yGoal - distanceToTag.getY()); // l - r error
+    System.out.println("angle: " + x_error);
+    theta_error = -(angleToTag - (Math.PI));
+    theta_error *= 4.0;
 
 
     
     m_drive.drive(
-      // DriveCommandConstants.kXP * x_error, 
-      // DriveCommandConstants.kYP * y_error, 
-      0.0,0.0, // don't drive
+      DriveCommandConstants.kXP * x_error, 
+      DriveCommandConstants.kYP * y_error, 
+      // 0.0,0.0, // don't drive
       DriveCommandConstants.kThetaP * theta_error, false, true, false);
 
     if(Math.abs(x_error) < DriveCommandConstants.kXToleranceMeters){

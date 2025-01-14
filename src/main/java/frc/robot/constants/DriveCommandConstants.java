@@ -12,7 +12,7 @@ public class DriveCommandConstants {
   public static final double kMaxVelocity = 0;
   public static final double kMaxAccel = 0;
 
-  public static final double xGoal = 0;
+  public static final double xGoal = 1.5;
   public static final double yGoal = 0;
   public static final double kThetaP = 0.1;
   public static final double kXToleranceMeters = 0;

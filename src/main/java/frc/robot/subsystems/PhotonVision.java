@@ -32,6 +32,7 @@ public class PhotonVision extends SubsystemBase {
   public PhotonVision() {
     LimelightTable.getInstance();
     cam = new PhotonCamera(VisionConstants.camName);
+    cam.setDriverMode(false);
     try{
       aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile); }
     catch(IOException IOE){
@@ -45,6 +46,7 @@ public class PhotonVision extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    // System.out.println("cam.getLatestResult(): " + cam.getLatestResult());
   }
 
   public PhotonPipelineResult getLatestResult(){
@@ -56,8 +58,9 @@ public class PhotonVision extends SubsystemBase {
   }
 
   public EstimatedRobotPose ifExistsGetEstimatedRobotPose(){
-    if (getVisionPoseEstimationResult().isPresent()){
-      return getVisionPoseEstimationResult().get();
+    Optional<EstimatedRobotPose> estimatedPose = getVisionPoseEstimationResult();
+    if (estimatedPose.isPresent()){
+      return estimatedPose.get();
     } 
     return null;
   }

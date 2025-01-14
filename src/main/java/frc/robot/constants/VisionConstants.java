@@ -3,7 +3,10 @@ package frc.robot.constants;
 import edu.wpi.first.math.geometry.Transform3d;
 
 public final class VisionConstants {
-  public static final String camName = "";
+  //10.17.40.2:5810
+  // 10.17.40.11
+  // http://photonvision.local:5800/#/dashboard
+  public static final String camName = "USB_webcam";
   public static final Transform3d RobotToCam = new Transform3d();
   public static final Double AprilTagMinimumArea = 0.0;
 

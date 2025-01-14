@@ -18,6 +18,7 @@ import frc.Board.HornTab;
 import frc.robot.commands.VisionAlign;
 import frc.robot.commands.AlignAndDrive.AlignToJoystickAndDrive;
 import frc.robot.commands.AlignAndDrive.AlignToNearestAngleAndDrive;
+import frc.robot.commands.AlignAndDrive.AlignToTagPhotonvision;
 import frc.robot.commands.AlignAndDrive.DriveWhileAligning;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -121,7 +122,7 @@ public class RobotContainer {
 
     m_driverController.y()
       .whileTrue(
-        new VisionAlign(m_robotDrive, m_robotShared.getLimelight())
+        new AlignToTagPhotonvision()
       );
     m_driverController.leftTrigger()
       .whileTrue(new RunCommand(

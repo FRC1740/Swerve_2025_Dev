@@ -34,6 +34,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
+
+import org.photonvision.EstimatedRobotPose;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -188,11 +191,13 @@ public class DriveSubsystem extends SubsystemBase {
     }
     updatePoseEstimater(); // add odomentry
 
-    if (m_PhotonVision.ifExistsGetEstimatedRobotPose() != null) {
-      PoseEstimator.addVisionMeasurement(
-      m_PhotonVision.ifExistsGetEstimatedRobotPose().estimatedPose.toPose2d(),
-      m_PhotonVision.ifExistsGetEstimatedRobotPose().timestampSeconds);
-    }
+    // EstimatedRobotPose pose = m_PhotonVision.ifExistsGetEstimatedRobotPose();
+
+    // if (pose != null) {
+    //   PoseEstimator.addVisionMeasurement(
+    //     pose.estimatedPose.toPose2d(),
+    //     pose.timestampSeconds);
+    // }
     
     //Just odometry
     m_odometry.update(

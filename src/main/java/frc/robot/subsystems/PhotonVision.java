@@ -26,13 +26,16 @@ import frc.robot.constants.VisionConstants;
 public class PhotonVision extends SubsystemBase {
   /** Creates a new PhotonVision. */
   PhotonCamera cam;
+  PhotonCamera cam2;
   AprilTagFieldLayout aprilTagFieldLayout;
   PhotonPoseEstimator PoseEstimator;
 
   public PhotonVision() {
     LimelightTable.getInstance();
     cam = new PhotonCamera(VisionConstants.camName);
+    cam2 = new PhotonCamera(VisionConstants.cam2Name);
     cam.setDriverMode(false);
+    cam2.setDriverMode(false);
     try{
       aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile); }
     catch(IOException IOE){
@@ -50,7 +53,12 @@ public class PhotonVision extends SubsystemBase {
   }
 
   public PhotonPipelineResult getLatestResult(){
-    return cam.getLatestResult();
+    PhotonPipelineResult result = cam.getLatestResult();
+    if (result.hasTargets()) {    
+      return result;
+    }else {
+      return cam2.getLatestResult();
+    }
   }
 
   public Optional<EstimatedRobotPose> getVisionPoseEstimationResult(){

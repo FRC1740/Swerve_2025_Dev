@@ -56,9 +56,8 @@ public class AlignToTagPhotonvision extends Command {
 
     x_error = -(DriveCommandConstants.xGoal - distanceToTag.getX()); // forward back
     y_error = -(DriveCommandConstants.yGoal - distanceToTag.getY()); // l - r error
-    System.out.println("angle: " + x_error);
+    System.out.println("angle: " + angleToTag);
     theta_error = -(angleToTag - (Math.PI));
-    theta_error *= 4.0;
 
 
     

@@ -6,7 +6,8 @@ public final class VisionConstants {
   //10.17.40.2:5810
   // 10.17.40.11
   // http://photonvision.local:5800/#/dashboard
-  public static final String camName = "USB_webcam";
+  public static final String camName = "Cam1";
+  public static final String cam2Name = "Cam2";
   public static final Transform3d RobotToCam = new Transform3d();
   public static final Double AprilTagMinimumArea = 0.0;
 

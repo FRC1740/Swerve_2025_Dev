@@ -8,6 +8,7 @@ import java.io.Console;
 
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.DriveCommandConstants;
@@ -54,10 +55,17 @@ public class AlignToTagPhotonvision extends Command {
     angleToTag = target.bestCameraToTarget.getRotation().getAngle();
     distanceToTag = target.bestCameraToTarget; // getTranslationToAprilTag may be incorrect
 
-    x_error = -(DriveCommandConstants.xGoal - distanceToTag.getX()); // forward back
-    y_error = -(DriveCommandConstants.yGoal - distanceToTag.getY()); // l - r error
+    x_error = -(DriveCommandConstants.xGoal - m_photonvision.getBestTargetX()); // forward back
+    y_error = -(DriveCommandConstants.yGoal - m_photonvision.getBestTargetY()); // l - r error
     System.out.println("angle: " + angleToTag);
+    System.out.println("x: " + x_error);
+    System.out.println("y: " + y_error);
     theta_error = -(angleToTag - (Math.PI));
+    // if theta not aligned, don't drive yet
+    if(Math.abs(theta_error) > DriveCommandConstants.kThetaToleranceRadians){
+      x_error = 0.0;
+      y_error = 0.0;
+    }
 
 
     
@@ -73,7 +81,7 @@ public class AlignToTagPhotonvision extends Command {
     if(Math.abs(y_error) < DriveCommandConstants.kYToleranceMeters){
       YFinished = true;
     }
-    if(Math.abs(theta_error) < DriveCommandConstants.kXToleranceMeters){
+    if(Math.abs(theta_error) < DriveCommandConstants.kThetaToleranceRadians){
       ThetaFinished = true;
     }
   }

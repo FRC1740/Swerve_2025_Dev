@@ -15,14 +15,12 @@ import frc.Board.DriveTrainTab;
 import frc.Board.DriverTab;
 import frc.Board.GroundIntakeTab;
 import frc.Board.HornTab;
-import frc.robot.commands.VisionAlign;
 import frc.robot.commands.AlignAndDrive.AlignToJoystickAndDrive;
 import frc.robot.commands.AlignAndDrive.AlignToNearestAngleAndDrive;
 import frc.robot.commands.AlignAndDrive.AlignToTagPhotonvision;
 import frc.robot.commands.AlignAndDrive.AlignToTagPose;
 import frc.robot.commands.AlignAndDrive.DriveWhileAligning;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.LimelightSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -46,7 +44,6 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 public class RobotContainer {
   // The robot's subsystems
   private DriveSubsystem m_robotDrive;
-  private LimelightSubsystem m_limelight;
   
   private RobotShared m_robotShared = RobotShared.getInstance();
 
@@ -98,7 +95,6 @@ public class RobotContainer {
     m_robotShared = RobotShared.getInstance();
 
     m_robotDrive = m_robotShared.getDriveSubsystem();
-    m_limelight = m_robotShared.getLimelight();
     m_robotShared.getPhotonVision();
 
     DriverTab.getInstance();
@@ -194,14 +190,6 @@ public class RobotContainer {
     buttonBoardSwitches[0][0]
     .onTrue(
       new InstantCommand(() -> m_robotDrive.setAutoRotationOffset(0.0, true))
-    );
-    
-    buttonBoardSwitches[1][0]
-    .onTrue(
-      new InstantCommand(() -> m_limelight.toggleLED(true))
-    )
-    .onFalse(
-      new InstantCommand(() -> m_limelight.toggleLED(false))
     );
     
   }

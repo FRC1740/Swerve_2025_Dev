@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.PhotonVision;
 
 public class RobotShared {
@@ -21,7 +20,6 @@ public class RobotShared {
   protected final CommandXboxController m_coDriverController = new CommandXboxController(OIConstants.kCoDriverControllerPort);
 
 
-  protected LimelightSubsystem m_limelight = null;
   protected PhotonVision m_photonVision = null;
 
   private static RobotShared instance;
@@ -44,12 +42,6 @@ public class RobotShared {
   }
   public CommandXboxController getCoDriverController() {
     return m_coDriverController;
-  }
-  public LimelightSubsystem getLimelight() {
-    if(m_limelight == null) {
-      m_limelight = new LimelightSubsystem();
-    }
-    return m_limelight;
   }
   public PhotonVision getPhotonVision() {
     if(m_photonVision == null) {

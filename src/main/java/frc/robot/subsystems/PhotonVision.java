@@ -30,6 +30,7 @@ public class PhotonVision extends SubsystemBase {
   AprilTagFieldLayout aprilTagFieldLayout;
   PhotonPoseEstimator PoseEstimator;
   PhotonTrackedTarget bestTarget;
+  PhotonPipelineResult lastResult;
   String lastCamName;
 
   public PhotonVision() {
@@ -52,33 +53,52 @@ public class PhotonVision extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     // System.out.println("cam.getLatestResult(): " + cam.getLatestResult());
-    getLatestResult();
+    lastResult = getLatestResult();
   }
 
   public PhotonPipelineResult getLatestResult(){
-    PhotonPipelineResult result = cam.getLatestResult();
-
-    if (result.hasTargets()) {    
+    List<PhotonPipelineResult> resultList = cam.getAllUnreadResults();
+    PhotonPipelineResult result = null;
+    if (resultList.size() != 0) {
+      result = resultList.get(resultList.size() - 1);
       bestTarget = result.getBestTarget();
       lastCamName = VisionConstants.camName;
       return result;
     }else {
-      lastCamName = VisionConstants.cam2Name;
-      result = cam2.getLatestResult();
-      bestTarget = result.getBestTarget();
-      return cam2.getLatestResult();
+      resultList = cam2.getAllUnreadResults();
+      if (resultList.size() != 0) {
+        result = resultList.get(resultList.size() - 1);
+        if (result.hasTargets()) { 
+          lastCamName = VisionConstants.cam2Name;
+          bestTarget = result.getBestTarget();
+        }
+        return result;
+      }else {
+        return null;
+      }
     }
   }
 
   public Optional<EstimatedRobotPose> getVisionPoseEstimationResult(){
-    return PoseEstimator.update(getLatestResult());
+    if (lastResult != null) {
+      if (lastResult.hasTargets()) {
+        return PoseEstimator.update(lastResult);
+
+      }
+    }
+
+    return null;
   }
 
   public EstimatedRobotPose ifExistsGetEstimatedRobotPose(){
     Optional<EstimatedRobotPose> estimatedPose = getVisionPoseEstimationResult();
-    if (estimatedPose.isPresent()){
-      return estimatedPose.get();
-    } 
+
+    if (estimatedPose != null) { 
+      if (estimatedPose.isPresent()){
+        return estimatedPose.get();
+      } 
+    }
+    // System.out.println("null pose");
     return null;
   }
 

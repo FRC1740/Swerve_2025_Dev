@@ -108,7 +108,6 @@ public class DriveSubsystem extends SubsystemBase {
     
   //Vision
   // PhotonVision m_photonVision;
-  LimelightSubsystem m_limelight;
   
   NetworkTable DriveTrainTable = NetworkTableInstance.getDefault().getTable("DriveTrain");
   
@@ -128,7 +127,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
-    m_limelight = m_robotShared.getLimelight();
     // configureHolonomic();
   }
 
@@ -181,21 +179,17 @@ public class DriveSubsystem extends SubsystemBase {
     // Update the odometry in the periodic block
     //Adds vision mesurement to pose estimator
     
-    double[] visionPose = m_limelight.getBotPose();
-    if (visionPose[0] != 0 && visionPose[1] != 0 && m_limelight.getTargetedArea() > VisionConstants.AprilTagMinimumArea &&
-      getDistance(new Pose2d(visionPose[0], visionPose[1], getRotation2d()), PoseEstimator.getEstimatedPosition()) < 2.0){
-      PoseEstimator.addVisionMeasurement(
-        new Pose2d(visionPose[0],
-          visionPose[1], m_odometry.getPoseMeters().getRotation()), //Vision Pose 
-        edu.wpi.first.wpilibj.Timer.getFPGATimestamp()); 
-    }
     updatePoseEstimater(); // add odomentry
 
     // EstimatedRobotPose pose = m_PhotonVision.ifExistsGetEstimatedRobotPose();
 
+    // Pose2d camPose = Pose2d.kZero;
     // if (pose != null) {
+    //   camPose = pose.estimatedPose.toPose2d();
+    //   System.out.println("pose: " + camPose);
+      
     //   PoseEstimator.addVisionMeasurement(
-    //     pose.estimatedPose.toPose2d(),
+    //     new Pose2d(camPose.getX(), camPose.getY(), getRotation2d()),
     //     pose.timestampSeconds);
     // }
     
@@ -211,11 +205,10 @@ public class DriveSubsystem extends SubsystemBase {
 
     //Pubilsh pose data to network tables
     PosePublisher.set(new Pose2d[]{
-      new Pose2d(m_limelight.getBotPose()[0],
-      m_limelight.getBotPose()[1], m_odometry.getPoseMeters().getRotation()), //Vision Pose
-      m_odometry.getPoseMeters(),
+      // camPose, //Vision Pose
+      m_odometry.getPoseMeters(), // odometry
       // new Pose2d(m_odometry.getPoseMeters().getTranslation().rotateBy(new Rotation2d(Units.degreesToRadians(180.0))), m_odometry.getPoseMeters().getRotation()), //Odometry pose
-      PoseEstimator.getEstimatedPosition()
+      // PoseEstimator.getEstimatedPosition() // combined
     });
 
     OdometryPublisher.set(getPose());

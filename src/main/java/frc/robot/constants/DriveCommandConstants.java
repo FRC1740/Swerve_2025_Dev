@@ -13,7 +13,7 @@ public class DriveCommandConstants {
   public static final double kMaxAccel = 0;
 
   public static final double xGoal = .6;
-  public static final double yGoal = -.13; // scoring mech is 6 in offcenter
+  public static final double yGoal = 0; // scoring mech is 6 in offcenter
   public static final double kThetaP = 0.5;
   public static final double kXToleranceMeters = 0;
   public static final double kYToleranceMeters = 0;

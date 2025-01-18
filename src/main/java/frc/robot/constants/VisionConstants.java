@@ -19,7 +19,7 @@ public final class VisionConstants {
 
   static {
     // y = l-r, x f-b
-    // offset to center of robot
+    // offset to center of robot meters
     cameraOffsets.put("Cam1", new Transform3d(0.0, 0.254, 0.0, new Rotation3d()));
     cameraOffsets.put("Cam2", new Transform3d(0.0, -0.254, 0.0, new Rotation3d()));
   }

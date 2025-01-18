@@ -57,6 +57,7 @@ public class PhotonVision extends SubsystemBase {
 
   public PhotonPipelineResult getLatestResult(){
     PhotonPipelineResult result = cam.getLatestResult();
+
     if (result.hasTargets()) {    
       bestTarget = result.getBestTarget();
       lastCamName = VisionConstants.camName;

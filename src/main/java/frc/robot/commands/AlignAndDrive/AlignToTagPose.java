@@ -10,7 +10,6 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.DriveCommandConstants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -18,7 +17,7 @@ import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.PhotonVision;
 import frc.robot.RobotShared;
 
-public class AlignToTagPhotonvision extends Command {
+public class AlignToTagPose extends Command {
   private DriveSubsystem m_drive;
   private PhotonVision m_photonvision;
 
@@ -36,7 +35,7 @@ public class AlignToTagPhotonvision extends Command {
   /** Creates a new Command that aligns the robot angle to an apriltag using the Limelight. 
    * <br></br> This command <b>DOES DRIVE</b>
   */
-  public AlignToTagPhotonvision() {
+  public AlignToTagPose() {
     m_robotShared = RobotShared.getInstance();
     m_drive = m_robotShared.getDriveSubsystem();
     m_photonvision = m_robotShared.getPhotonVision();
@@ -58,7 +57,9 @@ public class AlignToTagPhotonvision extends Command {
 
     x_error = -(DriveCommandConstants.xGoal - m_photonvision.getBestTargetX()); // forward back
     y_error = -(DriveCommandConstants.yGoal - m_photonvision.getBestTargetY()); // l - r error
-    // System.out.println("x: " + Units.metersToInches(m_photonvision.getBestTargetX()));
+    System.out.println("angle: " + angleToTag);
+    System.out.println("x: " + x_error);
+    System.out.println("y: " + y_error);
     theta_error = -(angleToTag - (Math.PI));
     // if theta not aligned, don't drive yet
     if(Math.abs(theta_error) > DriveCommandConstants.kThetaToleranceRadians){

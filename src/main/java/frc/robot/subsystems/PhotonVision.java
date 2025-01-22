@@ -53,30 +53,36 @@ public class PhotonVision extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     // System.out.println("cam.getLatestResult(): " + cam.getLatestResult());
-    lastResult = getLatestResult();
+    PhotonPipelineResult result = getLatestResult();
+    if (result != null) {
+      lastResult = result;
+    }
   }
 
   public PhotonPipelineResult getLatestResult(){
-    List<PhotonPipelineResult> resultList = cam.getAllUnreadResults();
     PhotonPipelineResult result = null;
-    if (resultList.size() != 0) {
+
+    List<PhotonPipelineResult> resultList = cam.getAllUnreadResults();
+    if (!resultList.isEmpty()) {
       result = resultList.get(resultList.size() - 1);
-      bestTarget = result.getBestTarget();
-      lastCamName = VisionConstants.camName;
-      return result;
-    }else {
-      resultList = cam2.getAllUnreadResults();
-      if (resultList.size() != 0) {
-        result = resultList.get(resultList.size() - 1);
-        if (result.hasTargets()) { 
-          lastCamName = VisionConstants.cam2Name;
-          bestTarget = result.getBestTarget();
-        }
+      if (result.hasTargets()) { 
+        bestTarget = result.getBestTarget();
+        lastCamName = VisionConstants.camName;
         return result;
-      }else {
-        return null;
       }
     }
+
+    resultList = cam2.getAllUnreadResults();
+    if (!resultList.isEmpty()) {
+      result = resultList.get(resultList.size() - 1);
+      if (result.hasTargets()) { 
+        bestTarget = result.getBestTarget();
+        lastCamName = VisionConstants.cam2Name;
+        return result;
+      }
+    }
+    
+    return null;
   }
 
   public Optional<EstimatedRobotPose> getVisionPoseEstimationResult(){

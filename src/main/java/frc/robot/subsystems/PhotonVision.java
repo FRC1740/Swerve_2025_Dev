@@ -16,8 +16,10 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
+// make sure this is updated to the current game
+import edu.wpi.first.apriltag.AprilTagFieldLayout; 
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.Networking.LimelightTable;
@@ -28,7 +30,8 @@ public class PhotonVision extends SubsystemBase {
   PhotonCamera cam;
   PhotonCamera cam2;
   AprilTagFieldLayout aprilTagFieldLayout;
-  PhotonPoseEstimator PoseEstimator;
+  PhotonPoseEstimator Cam2PoseEstimator;
+  PhotonPoseEstimator Cam1PoseEstimator;
   PhotonTrackedTarget bestTarget;
   PhotonPipelineResult lastResult;
   String lastCamName;
@@ -40,13 +43,16 @@ public class PhotonVision extends SubsystemBase {
     cam.setDriverMode(false);
     cam2.setDriverMode(false);
     try{
-      aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile); }
+      // if you set this, you may get incorrect tag positions!!!
+      aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.kDefaultField.m_resourceFile); }
     catch(IOException IOE){
       IOE.printStackTrace();
     }
 
-    PoseEstimator = new PhotonPoseEstimator(
-      aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.RobotToCam);
+    Cam1PoseEstimator = new PhotonPoseEstimator(
+      aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.RobotToCam1);
+    Cam2PoseEstimator = new PhotonPoseEstimator(
+      aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.RobotToCam2);
   }
 
   @Override
@@ -88,8 +94,11 @@ public class PhotonVision extends SubsystemBase {
   public Optional<EstimatedRobotPose> getVisionPoseEstimationResult(){
     if (lastResult != null) {
       if (lastResult.hasTargets()) {
-        return PoseEstimator.update(lastResult);
-
+        if (lastCamName == "Cam1") {
+          return Cam1PoseEstimator.update(lastResult);
+        }else {
+          return Cam2PoseEstimator.update(lastResult);
+        }
       }
     }
 
@@ -121,7 +130,7 @@ public class PhotonVision extends SubsystemBase {
   public Transform3d getCamToTarget(){
     return bestTarget.getBestCameraToTarget();
   }
-
+  
   //Returns list of IDs currently being tracked
   public List<Integer> getAprilTagIDs(){
     List<PhotonTrackedTarget> targets = getLatestResult().getTargets();

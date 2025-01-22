@@ -12,17 +12,21 @@ public final class VisionConstants {
   // http://photonvision.local:5800/#/dashboard
   public static final String camName = "Cam1"; // grey
   public static final String cam2Name = "Cam2"; // white
-  public static final Transform3d RobotToCam = new Transform3d();
   public static final Double AprilTagMinimumArea = 0.0;
 
-  public static final HashMap<String, Transform3d> cameraOffsets = new HashMap<>();
+  public static final Double cam12Dist = .25; // .25m between cams
 
+  public static final HashMap<String, Transform3d> cameraOffsets = new HashMap<>();
+  
   static {
     // y = l-r, x f-b
     // offset to center of robot meters
-    cameraOffsets.put("Cam1", new Transform3d(0.0, 0.254, 0.0, new Rotation3d()));
-    cameraOffsets.put("Cam2", new Transform3d(0.0, -0.254, 0.0, new Rotation3d()));
+    cameraOffsets.put("Cam1", new Transform3d(0.0, cam12Dist, 0.0, new Rotation3d()));
+    cameraOffsets.put("Cam2", new Transform3d(0.0, -cam12Dist, 0.0, new Rotation3d()));
   }
+
+  public static final Transform3d RobotToCam1 = new Transform3d(0.0, -cam12Dist, 0.0, new Rotation3d());
+  public static final Transform3d RobotToCam2 = new Transform3d(0.0, cam12Dist, 0.0, new Rotation3d());
 
   public enum AprilTagIDs{
     RedSpeakerCenter(4), //Center tag on red speaker

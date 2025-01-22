@@ -113,7 +113,12 @@ public class DriveSubsystem extends SubsystemBase {
   
   //Pose data Publisher
   StructArrayPublisher<Pose2d> PosePublisher = DriveTrainTable
-    .getStructArrayTopic("Poses", Pose2d.struct).publish();
+  .getStructArrayTopic("Poses", Pose2d.struct).publish();
+  
+  StructArrayPublisher<Pose2d> Cam1Publisher = DriveTrainTable
+    .getStructArrayTopic("Cam1", Pose2d.struct).publish();
+  StructArrayPublisher<Pose2d> Cam2Publisher = DriveTrainTable
+    .getStructArrayTopic("Cam2", Pose2d.struct).publish();
 
   StructPublisher<Pose2d> OdometryPublisher = DriveTrainTable
     .getStructTopic("Odometry", Pose2d.struct).publish();
@@ -181,17 +186,24 @@ public class DriveSubsystem extends SubsystemBase {
     
     updatePoseEstimater(); // add odomentry
 
-    // EstimatedRobotPose pose = m_PhotonVision.ifExistsGetEstimatedRobotPose();
+    EstimatedRobotPose pose = m_PhotonVision.ifExistsGetEstimatedRobotPose();
 
-    // Pose2d camPose = Pose2d.kZero;
-    // if (pose != null) {
-    //   camPose = pose.estimatedPose.toPose2d();
-    //   System.out.println("pose: " + camPose);
+    Pose2d camPose = Pose2d.kZero;
+    if (pose != null) {
+      camPose = pose.estimatedPose.toPose2d();
+      camPose = new Pose2d(camPose.getX(), camPose.getY(), getRotation2d()); // remove rot because vision rot bad
+
+      if (m_PhotonVision.lastCamName == "Cam1") {
+        Cam1Publisher.set(new Pose2d[]{ camPose });
+      }else {
+        Cam2Publisher.set(new Pose2d[]{ camPose });
+      }
+      // System.out.println("pose: " + camPose);
       
-    //   PoseEstimator.addVisionMeasurement(
-    //     new Pose2d(camPose.getX(), camPose.getY(), getRotation2d()),
-    //     pose.timestampSeconds);
-    // }
+      PoseEstimator.addVisionMeasurement(
+        camPose,
+        pose.timestampSeconds);
+    }
     
     //Just odometry
     m_odometry.update(
@@ -205,10 +217,10 @@ public class DriveSubsystem extends SubsystemBase {
 
     //Pubilsh pose data to network tables
     PosePublisher.set(new Pose2d[]{
-      // camPose, //Vision Pose
+      camPose, //Vision Pose
       m_odometry.getPoseMeters(), // odometry
       // new Pose2d(m_odometry.getPoseMeters().getTranslation().rotateBy(new Rotation2d(Units.degreesToRadians(180.0))), m_odometry.getPoseMeters().getRotation()), //Odometry pose
-      // PoseEstimator.getEstimatedPosition() // combined
+      PoseEstimator.getEstimatedPosition() // combined
     });
 
     OdometryPublisher.set(getPose());

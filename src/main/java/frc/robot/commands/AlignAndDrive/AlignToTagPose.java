@@ -15,11 +15,16 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.DriveCommandConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.PhotonVision;
+import frc.robot.Robot;
 import frc.robot.RobotShared;
 
 public class AlignToTagPose extends Command {
@@ -37,6 +42,12 @@ public class AlignToTagPose extends Command {
   boolean YFinished;
   boolean ThetaFinished;
   Pose2d targetPose = null;
+
+  NetworkTable DriveTrainTable = NetworkTableInstance.getDefault().getTable("DriveTrain");
+  
+  //Pose data Publisher
+  StructArrayPublisher<Pose2d> PosePublisher = DriveTrainTable
+  .getStructArrayTopic("Target Pose", Pose2d.struct).publish();
 
   public static double normalizeAngle(double angle) {
     return Math.atan2(Math.sin(angle), Math.cos(angle));
@@ -75,9 +86,12 @@ public class AlignToTagPose extends Command {
 
       Pose2d rotatedGoal = new Pose2d(DriveCommandConstants.xGoal, DriveCommandConstants.yGoal, new Rotation2d())
         .rotateBy(targetPose.getRotation());
+      rotatedGoal = new Pose2d((targetPose.getX() + rotatedGoal.getX()), (targetPose.getY() - rotatedGoal.getY()), new Rotation2d());
+      PosePublisher.set(new Pose2d[] { rotatedGoal });
+      
 
-      x_error = (m_drive.getPose().getX() - (targetPose.getX() + rotatedGoal.getX())); // l - r error
-      y_error = (m_drive.getPose().getY() - (targetPose.getY() - rotatedGoal.getY())); // l - r error
+      x_error = (m_drive.getPose().getX() - rotatedGoal.getX()); // l - r error
+      y_error = (m_drive.getPose().getY() - rotatedGoal.getY()); // l - r error
       // flip because mechs on "back"
       theta_error = normalizeAngle(angleToTag - Math.PI);
       System.out.println("angle: " + angleToTag);

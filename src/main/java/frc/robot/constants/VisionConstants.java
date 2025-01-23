@@ -14,10 +14,11 @@ public final class VisionConstants {
   public static final String cam2Name = "Cam2"; // white
   public static final Double AprilTagMinimumArea = 0.0;
 
-  public static final Double cam12Dist = .25; // .25m between cams
+  // tuned somewhat
+  public static final Double cam12Dist = .222; // .25m between cams
 
   public static final HashMap<String, Transform3d> cameraOffsets = new HashMap<>();
-  
+
   static {
     // y = l-r, x f-b
     // offset to center of robot meters

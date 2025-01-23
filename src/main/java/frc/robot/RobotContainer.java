@@ -119,7 +119,7 @@ public class RobotContainer {
 
     m_driverController.y()
       .whileTrue(
-        new AlignToTagPhotonvision()
+        new AlignToTagPose()
       );
     m_driverController.leftTrigger()
       .whileTrue(new RunCommand(

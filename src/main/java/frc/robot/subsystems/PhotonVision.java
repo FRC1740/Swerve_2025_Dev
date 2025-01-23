@@ -16,10 +16,6 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-// make sure this is updated to the current game
-import edu.wpi.first.apriltag.AprilTagFieldLayout; 
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.Networking.LimelightTable;
@@ -29,7 +25,6 @@ public class PhotonVision extends SubsystemBase {
   /** Creates a new PhotonVision. */
   PhotonCamera cam;
   PhotonCamera cam2;
-  AprilTagFieldLayout aprilTagFieldLayout;
   PhotonPoseEstimator Cam2PoseEstimator;
   PhotonPoseEstimator Cam1PoseEstimator;
   PhotonTrackedTarget bestTarget;
@@ -42,17 +37,12 @@ public class PhotonVision extends SubsystemBase {
     cam2 = new PhotonCamera(VisionConstants.cam2Name);
     cam.setDriverMode(false);
     cam2.setDriverMode(false);
-    try{
-      // if you set this, you may get incorrect tag positions!!!
-      aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.kDefaultField.m_resourceFile); }
-    catch(IOException IOE){
-      IOE.printStackTrace();
-    }
 
     Cam1PoseEstimator = new PhotonPoseEstimator(
-      aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.RobotToCam1);
+      VisionConstants.aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.RobotToCam1);
+      // TODO! not enabled MULTI_TAG_PNP_ON_COPROCESSOR
     Cam2PoseEstimator = new PhotonPoseEstimator(
-      aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.RobotToCam2);
+      VisionConstants.aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.RobotToCam2);
   }
 
   @Override
@@ -130,7 +120,7 @@ public class PhotonVision extends SubsystemBase {
   public Transform3d getCamToTarget(){
     return bestTarget.getBestCameraToTarget();
   }
-  
+
   //Returns list of IDs currently being tracked
   public List<Integer> getAprilTagIDs(){
     List<PhotonTrackedTarget> targets = getLatestResult().getTargets();

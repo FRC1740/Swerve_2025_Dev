@@ -191,7 +191,7 @@ public class DriveSubsystem extends SubsystemBase {
     Pose2d camPose = Pose2d.kZero;
     if (pose != null) {
       camPose = pose.estimatedPose.toPose2d();
-      camPose = new Pose2d(camPose.getX(), camPose.getY(), getRotation2d()); // remove rot because vision rot bad
+      // camPose = new Pose2d(camPose.getX(), camPose.getY(), getRotation2d()); // remove rot because vision rot bad
 
       if (m_PhotonVision.lastCamName == "Cam1") {
         Cam1Publisher.set(new Pose2d[]{ camPose });
@@ -260,8 +260,8 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The pose.
    */
   public Pose2d getPose() {
-    return m_odometry.getPoseMeters();
-    // return PoseEstimator.getEstimatedPosition();
+    // return m_odometry.getPoseMeters();
+    return PoseEstimator.getEstimatedPosition();
   }
 
   /**         

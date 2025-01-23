@@ -5,13 +5,19 @@
 package frc.robot.commands.AlignAndDrive;
 
 import java.io.Console;
+import java.util.Optional;
 
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.DriveCommandConstants;
+import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.PhotonVision;
 import frc.robot.RobotShared;
@@ -30,6 +36,11 @@ public class AlignToTagPose extends Command {
   boolean XFinished;
   boolean YFinished;
   boolean ThetaFinished;
+  Pose2d targetPose = null;
+
+  public static double normalizeAngle(double angle) {
+    return Math.atan2(Math.sin(angle), Math.cos(angle));
+  }   
 
   /** Creates a new Command that aligns the robot angle to an apriltag using the Limelight. 
    * <br></br> This command <b>DOES DRIVE</b>
@@ -51,39 +62,45 @@ public class AlignToTagPose extends Command {
   public void execute() {
     PhotonTrackedTarget target = m_photonvision.getBestTarget();
     if (target != null) {
-    angleToTag = target.bestCameraToTarget.getRotation().getAngle();
-    distanceToTag = target.bestCameraToTarget; // getTranslationToAprilTag may be incorrect
-
-    x_error = -(DriveCommandConstants.xGoal - m_photonvision.getBestTargetX()); // forward back
-    y_error = -(DriveCommandConstants.yGoal - m_photonvision.getBestTargetY()); // l - r error
-    System.out.println("angle: " + angleToTag);
-    System.out.println("x: " + x_error);
-    System.out.println("y: " + y_error);
-    theta_error = -(angleToTag - (Math.PI));
-    // if theta not aligned, don't drive yet
-    if(Math.abs(theta_error) > DriveCommandConstants.kThetaToleranceRadians){
-      x_error = 0.0;
-      y_error = 0.0;
+      Optional<Pose3d> tagPose = VisionConstants.aprilTagFieldLayout.getTagPose(target.fiducialId);
+      // TODO! check if reef tag
+      if (tagPose.isPresent()) { 
+        targetPose = tagPose.get().toPose2d();
+      }
     }
+      
+    if (targetPose != null) {
+      angleToTag = normalizeAngle(targetPose.getRotation().getRadians() - m_drive.getRotation2d().getRadians());
+      distanceToTag = target.bestCameraToTarget; // getTranslationToAprilTag may be incorrect
 
+      Pose2d rotatedGoal = new Pose2d(DriveCommandConstants.xGoal, DriveCommandConstants.yGoal, new Rotation2d())
+        .rotateBy(targetPose.getRotation());
 
-    
-    m_drive.drive(
-      DriveCommandConstants.kXP * x_error, 
-      DriveCommandConstants.kYP * y_error, 
-      // 0.0,0.0, // don't drive
-      DriveCommandConstants.kThetaP * theta_error, false, true, false);
+      x_error = (m_drive.getPose().getX() - (targetPose.getX() + rotatedGoal.getX())); // l - r error
+      y_error = (m_drive.getPose().getY() - (targetPose.getY() - rotatedGoal.getY())); // l - r error
+      // flip because mechs on "back"
+      theta_error = normalizeAngle(angleToTag - Math.PI);
+      System.out.println("angle: " + angleToTag);
+      System.out.println("x: " + x_error);
+      System.out.println("y: " + y_error);
+      // x_error = 0;
+      
+      m_drive.drive(
+        DriveCommandConstants.kXP * x_error, 
+        DriveCommandConstants.kYP * y_error, 
+        // 0.0,0.0, // don't drive
+        DriveCommandConstants.kThetaP * theta_error, false, true, false);
 
-    if(Math.abs(x_error) < DriveCommandConstants.kXToleranceMeters){
-      XFinished = true;
+      if(Math.abs(x_error) < DriveCommandConstants.kXToleranceMeters){
+        XFinished = true;
+      }
+      if(Math.abs(y_error) < DriveCommandConstants.kYToleranceMeters){
+        YFinished = true;
+      }
+      if(Math.abs(theta_error) < DriveCommandConstants.kThetaToleranceRadians){
+        ThetaFinished = true;
+      }
     }
-    if(Math.abs(y_error) < DriveCommandConstants.kYToleranceMeters){
-      YFinished = true;
-    }
-    if(Math.abs(theta_error) < DriveCommandConstants.kThetaToleranceRadians){
-      ThetaFinished = true;
-    }
-  }
   }
 
   // Called once the command ends or is interrupted.

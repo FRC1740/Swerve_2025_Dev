@@ -19,6 +19,7 @@ public class DriveToPoint extends PIDCommand {
    * This is the janky homemade drive to point function, consider using {@link frc.utils.OnTheFlyPathing}.
    * It also doesn't work. So OnTheFlyPathing is better.
   */
+  @SuppressWarnings("removal")
   public DriveToPoint(double targetX, double targetY) { 
     super(
         // The controller that the command will use

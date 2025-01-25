@@ -94,8 +94,9 @@ public class AlignToTagPose extends Command {
       
       angleToTag = normalizeAngle(rotatedGoal.getRotation().getRadians() - m_drive.getRotation2d().getRadians());
 
-      x_error = (m_drive.getPose().getX() - rotatedGoal.getX()); // f - b error
-      y_error = (m_drive.getPose().getY() - rotatedGoal.getY()); // l - r error
+      x_error = -(m_drive.getPose().getX() - rotatedGoal.getX()); // f - b error
+      y_error = -(m_drive.getPose().getY() - rotatedGoal.getY()); // l - r error
+      // y_error = 0;
       // flip because mechs on "back"
       theta_error = normalizeAngle(angleToTag);
       System.out.println("angle: " + angleToTag);
@@ -107,7 +108,7 @@ public class AlignToTagPose extends Command {
         DriveCommandConstants.kXP * x_error, 
         DriveCommandConstants.kYP * y_error, 
         // 0.0,0.0, // don't drive
-        DriveCommandConstants.kThetaP * theta_error, false, true, false);
+        DriveCommandConstants.kThetaP * theta_error, true, true, false);
 
       if(Math.abs(x_error) < DriveCommandConstants.kXToleranceMeters){
         XFinished = true;

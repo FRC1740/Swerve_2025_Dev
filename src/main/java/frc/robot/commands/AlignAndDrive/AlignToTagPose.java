@@ -81,19 +81,23 @@ public class AlignToTagPose extends Command {
     }
       
     if (targetPose != null) {
-      angleToTag = normalizeAngle(targetPose.getRotation().getRadians() - m_drive.getRotation2d().getRadians());
       distanceToTag = target.bestCameraToTarget; // getTranslationToAprilTag may be incorrect
 
-      Pose2d rotatedGoal = new Pose2d(DriveCommandConstants.xGoal, DriveCommandConstants.yGoal, new Rotation2d())
-        .rotateBy(targetPose.getRotation());
-      rotatedGoal = new Pose2d((targetPose.getX() + rotatedGoal.getX()), (targetPose.getY() - rotatedGoal.getY()), new Rotation2d());
+      Pose2d rotatedGoal = new Pose2d(DriveCommandConstants.xGoal, DriveCommandConstants.yGoal, new Rotation2d());
+      rotatedGoal = rotatedGoal.rotateBy(targetPose.getRotation()); // Rotate the goal to account for rotated tags
+
+      rotatedGoal = new Pose2d(
+        (targetPose.getX() + rotatedGoal.getX()), // apply target offsets
+        (targetPose.getY() + rotatedGoal.getY()), 
+        targetPose.getRotation().plus(new Rotation2d(1 * Math.PI))); // normal of the tag is flipped from robot target
       PosePublisher.set(new Pose2d[] { rotatedGoal });
       
+      angleToTag = normalizeAngle(rotatedGoal.getRotation().getRadians() - m_drive.getRotation2d().getRadians());
 
-      x_error = (m_drive.getPose().getX() - rotatedGoal.getX()); // l - r error
+      x_error = (m_drive.getPose().getX() - rotatedGoal.getX()); // f - b error
       y_error = (m_drive.getPose().getY() - rotatedGoal.getY()); // l - r error
       // flip because mechs on "back"
-      theta_error = normalizeAngle(angleToTag - Math.PI);
+      theta_error = normalizeAngle(angleToTag);
       System.out.println("angle: " + angleToTag);
       System.out.println("x: " + x_error);
       System.out.println("y: " + y_error);

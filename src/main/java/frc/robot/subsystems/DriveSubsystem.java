@@ -190,8 +190,8 @@ public class DriveSubsystem extends SubsystemBase {
 
     Pose2d camPose = Pose2d.kZero;
     if (pose != null) {
-      camPose = pose.estimatedPose.toPose2d();
-      // camPose = new Pose2d(camPose.getX(), camPose.getY(), getRotation2d()); // remove rot because vision rot bad
+      // camPose = pose.estimatedPose.toPose2d();
+      camPose = new Pose2d(pose.estimatedPose.getX(), pose.estimatedPose.getY(), getRotation2d()); // remove rot because vision rot bad
 
       if (m_PhotonVision.lastCamName == "Cam1") {
         Cam1Publisher.set(new Pose2d[]{ camPose });
@@ -473,6 +473,9 @@ public class DriveSubsystem extends SubsystemBase {
     m_gyro.reset();
     gyroAutoAngularOffset = 0.0;
     System.out.println("Set auto rotation offset to 0.0");
+    m_odometry.resetRotation(
+      new Rotation2d());
+    PoseEstimator.resetRotation(new Rotation2d());
     // m_gyro.setAngleAdjustment(0.0);
   }
   
@@ -492,7 +495,7 @@ public class DriveSubsystem extends SubsystemBase {
 
 //Gets gyro in form of Rotation2d
   public Rotation2d getRotation2d(){ // this is the reversed angle and should be used to get the reversed robot angle
-    return m_gyro.getRotation2d(); // TODO: pose estimator has no rotation offset
+    return m_gyro.getRotation2d().plus(new Rotation2d(GyroConstants.kGyroAngularOffset)); // TODO: pose estimator has no rotation offset
   }
 
   /**
